@@ -1,6 +1,6 @@
 // src/routes/user_routes.ts
 import express from 'express';
-import { registerCtrl, loginCtrl, googleAuthCtrl, googleAuthCallback } from "../auth/auth_controller.js";
+import { registerCtrl, loginCtrl, googleAuthCtrl, googleAuthCallback, refreshTokenCtrl } from "../auth/auth_controller.js";
 
 const router = express.Router();
 
@@ -114,5 +114,19 @@ router.get('/auth/google',googleAuthCtrl );
  *         description: Error en la autenticación
  */
 router.get('/auth/google/callback', googleAuthCallback);
+
+/**
+ * @swagger
+ * /api/auth/refresh-token:
+ *   post:
+ *     summary: Refresca el token d'autenticació
+ *     tags: [Auth]
+ *     responses:
+ *       200:
+ *         description: Token refrescat correctament
+ *       400:
+ *         description: Error en la sol·licitud
+ */
+router.post("/auth/refresh-token", refreshTokenCtrl);
 
 export default router;

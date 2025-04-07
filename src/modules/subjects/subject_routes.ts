@@ -1,70 +1,20 @@
 import express from 'express';
-import {
-    saveMethodHandler,
-    createSubjectHandler,
-    getAllSubjectsHandler,
-    getSubjectByIdHandler,
-    updateSubjectHandler,
-    deleteSubjectHandler,
-    getUsersBySubjectHandler
-} from '../subjects/subject_controller.js';
-import { checkJwt } from '../../middleware/session.js';
+import { 
+  createSubject, 
+  searchSubject, 
+  updateSubjectByName, 
+  deleteSubject, 
+  assignSubjectToUser, 
+  getUsersFromSubject 
+} from './subject_controller.js';
 
 const router = express.Router();
 
 /**
- * @swagger
- * components:
- *   securitySchemes:
- *     bearerAuth:
- *       type: http
- *       scheme: bearer
- *       bearerFormat: JWT
- *   schemas:
- *     Subject:
- *       type: object
- *       properties:
- *         name:
- *           type: string
- *         description:
- *           type: string
- *         teacher:
- *           type: string
- *         students:
- *           type: array
- *           items:
- *             type: string
- *             format: uuid
- */
-
-/**
- * @swagger
- * /api/main:
- *   get:
- *     summary: Página de bienvenida
- *     description: Retorna un mensaje de bienvenida.
- *     tags:
- *       - Main
- *     responses:
- *       200:
- *         description: Éxito
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message:
- *                   type: string
- *                   example: Bienvenido a la API
- */
-router.get('/main', saveMethodHandler);
-
-/**
- * @swagger
- * /api/subjects:
+ * @openapi
+ * /api/subject/:
  *   post:
- *     summary: Crea una nueva asignatura
- *     description: Añade los detalles de una nueva asignatura.
+ *     summary: Crea un nou subject
  *     tags:
  *       - Subjects
  *     requestBody:
@@ -72,132 +22,159 @@ router.get('/main', saveMethodHandler);
  *       content:
  *         application/json:
  *           schema:
- *             $ref: '#/components/schemas/Subject'
- *     responses:
- *       201:
- *         description: Asignatura creada exitosamente
- */
-router.post('/subjects', createSubjectHandler);
-
-/**
- * @swagger
- * /api/subjects:
- *   get:
- *     summary: Obtiene todas las asignaturas
- *     description: Retorna una lista de todas las asignaturas.
- *     tags:
- *       - Subjects
- *     security:
- *       - bearerAuth: []
- *     responses:
- *       200:
- *         description: Éxito
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Subject'
- */
-router.get('/subjects', checkJwt, getAllSubjectsHandler);
-
-/**
- * @swagger
- * /api/subjects/{id}:
- *   get:
- *     summary: Obtiene una asignatura por ID
- *     description: Retorna los detalles de una asignatura específica.
- *     tags:
- *       - Subjects
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID de la asignatura
- *     responses:
- *       200:
- *         description: Éxito
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Subject'
- */
-router.get('/subjects/:id', getSubjectByIdHandler);
-
-/**
- * @swagger
- * /api/subjects/{id}:
- *   put:
- *     summary: Actualiza una asignatura por ID
- *     description: Actualiza los detalles de una asignatura específica.
- *     tags:
- *       - Subjects
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID de la asignatura
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/Subject'
- *     responses:
- *       200:
- *         description: Asignatura actualizada exitosamente
- */
-router.put('/subjects/:id', updateSubjectHandler);
-
-/**
- * @swagger
- * /api/subjects/{id}:
- *   delete:
- *     summary: Elimina una asignatura por ID
- *     description: Elimina una asignatura específica.
- *     tags:
- *       - Subjects
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *         description: ID de la asignatura
- *     responses:
- *       200:
- *         description: Asignatura eliminada exitosamente
- */
-router.delete('/subjects/:id', deleteSubjectHandler);
-
-/**
- * @swagger
- * /api/subjects/{id}/users:
- *   get:
- *     summary: Obtiene todos los usuarios en una asignatura
- *     description: Retorna una lista de todos los usuarios en una asignatura específica.
- *     tags:
- *       - Subjects
- *     parameters:
- *       - name: id
- *         in: path
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Éxito
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
+ *             type: object
+ *             properties:
+ *               name:
  *                 type: string
+ *               teacher:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Subject creat amb èxit
+ *       500:
+ *         description: Error del servidor
  */
-router.get('/subjects/:id/users', getUsersBySubjectHandler);
+router.post('/', createSubject);
+
+/**
+ * @openapi
+ * /api/subject/assign/{userName}/{subjectName}:
+ *   put:
+ *     summary: Assigna un usuari a un subject
+ *     tags:
+ *       - Subjects
+ *     parameters:
+ *       - in: path
+ *         name: userName
+ *         required: true
+ *         description: El nom de l'usuari que es vol assignar
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: subjectName
+ *         required: true
+ *         description: El nom del subject al qual assignar l'usuari
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usuari assignat correctament
+ *       404:
+ *         description: Subject no trobat
+ *       405:
+ *         description: Usuari no trobat
+ *       500:
+ *         description: Error del servidor
+ */
+router.put('/assign/:userName/:subjectName', assignSubjectToUser);
+
+/**
+ * @openapi
+ * /api/subject/users/{name}:
+ *   get:
+ *     summary: Obté els usuaris associats a un subject
+ *     tags:
+ *       - Subjects
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
+ *         description: El nom del subject per obtenir els usuaris
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usuaris trobats correctament
+ *       201:
+ *         description: No s'han trobat usuaris
+ *       404:
+ *         description: Subject no trobat
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/users/:name', getUsersFromSubject);
+
+/**
+ * @openapi
+ * /api/subject/{name}:
+ *   get:
+ *     summary: Obté un subject
+ *     tags:
+ *       - Subjects
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
+ *         description: El nom del subject a cercar
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Subject trobat amb èxit
+ *       404:
+ *         description: Subject no trobat
+ *       500:
+ *         description: Error del servidor
+ */
+router.get('/:name', searchSubject);
+
+/**
+ * @openapi
+ * /api/subject/{name}:
+ *   put:
+ *     summary: Actualitza un subject
+ *     tags:
+ *       - Subjects
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
+ *         description: El nom del subject que es vol actualitzar
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               teacher:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Subject actualitzat correctament
+ *       404:
+ *         description: Subject no trobat
+ *       500:
+ *         description: Error del servidor
+ */
+router.put('/:name', updateSubjectByName);
+
+/**
+ * @openapi
+ * /api/subject/{name}:
+ *   delete:
+ *     summary: Elimina un subject pel nom
+ *     tags:
+ *       - Subjects
+ *     parameters:
+ *       - in: path
+ *         name: name
+ *         required: true
+ *         description: El nom del subject a eliminar
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Subject eliminat correctament
+ *       404:
+ *         description: Subject no trobat
+ *       500:
+ *         description: Error del servidor
+ */
+router.delete('/:name', deleteSubject);
 
 export default router;

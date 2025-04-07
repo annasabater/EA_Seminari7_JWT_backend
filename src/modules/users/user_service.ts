@@ -24,3 +24,7 @@ export const updateUser = async (id: string, updateData: Partial<IUser>) => {
 export const deleteUser = async (id: string) => {
     return await User.deleteOne({ _id: id });
 };
+
+export const logIn = async (name1: string, password: string) => {
+    return await User.findOne({name: name1, password: password});
+}

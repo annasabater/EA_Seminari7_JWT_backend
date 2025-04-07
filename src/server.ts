@@ -82,8 +82,9 @@ app.use(corsHandler);
 //rutas
 app.use('/api', userRoutes);
 app.use('/api', forumRoutes);
-app.use('/api', subjectRoutes);
+app.use('/api/subject', subjectRoutes);
 app.use('/api', authRoutes);
+
 // Rutes de prova
 app.get('/', (req, res) => {
     res.send('Welcome to my API');
